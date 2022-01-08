@@ -4,9 +4,10 @@ const mongoose = require('mongoose')
 const catchAsync = require('./utils/catchAsync')
 const ExpressError = require('./utils/ExpressError')
 const methodOverride = require('method-override')
-const Product = require('./models/product')
+const Product = require('./src/validations/product')
 const Joi = require('joi')
 const { productSchema } = require('./schemas')
+const rootRouter = require('./src/routes/index.js')
 
 mongoose.connect('mongodb://localhost:27017/backend-test', {
   useNewUrlParser: true,
@@ -26,6 +27,7 @@ app.set('views', path.join(__dirname, 'views'))
 
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
+app.use('/', rootRouter)
 
 const validateProduct = (req, res, next) => {
   const { error } = productSchema.validate(req.body)
