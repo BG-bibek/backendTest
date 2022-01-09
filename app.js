@@ -8,6 +8,9 @@ const methodOverride = require('method-override')
 const Joi = require('joi')
 const { productSchema } = require('./schemas')
 const rootRouter = require('./src/routes/index.js')
+const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
+const { cookie } = require('express/lib/response')
 
 mongoose.connect('mongodb://localhost:27017/backend-test', {
   useNewUrlParser: true,
@@ -25,7 +28,27 @@ const app = express()
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 
-app.use(express.urlencoded({ extended: true }))
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(
+  bodyParser.urlencoded({
+    limit: '50mb',
+    extended: true,
+    parameterLimit: 50000,
+  })
+)
+//cross origin plateform
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  )
+  next()
+  // res.json({data: [1, 2, 3, 4]})
+})
+
+app.use(cookieParser())
+
 app.use(methodOverride('_method'))
 app.use('/api/v1', rootRouter)
 
